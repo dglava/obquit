@@ -27,7 +27,12 @@ class OBquit:
         self.background_img = self.get_background()
 
         self.shade = Gtk.DrawingArea()
-        self.shade.connect("draw", self.on_draw)
+        self.shade.connect(
+            "draw",
+            self.on_draw,
+            # opacity settings taken from config file
+            float(self.config.get("Options", "opacity"))
+            )
 
         # widget holding all the buttons
         self.button_line = Gtk.Box(
@@ -78,9 +83,9 @@ class OBquit:
         else:
             Gtk.main_quit()
 
-    def on_draw(self, widget, cairo_context):
+    def on_draw(self, widget, cairo_context, opacity):
         # fills the widget with a solid black color and chosen opacity
-        cairo_context.set_source_rgba(0, 0, 0, 0.5)
+        cairo_context.set_source_rgba(0, 0, 0, opacity)
         cairo_context.rectangle(
             0, 0,
             self.screen_width, self.screen_height
