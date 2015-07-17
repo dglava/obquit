@@ -52,19 +52,20 @@ class OBquit:
                 self.config.get("Commands", name)
                 )
         # adds a cancel button
-        self.add_button(self.button_line, "Cancel")
+        self.add_button(self.button_line, "cancel")
 
     def add_button(self, parent, name, command=None):
-        """
-        creates a Box() containing a Button() and Label() with
-        the specified name and command
-        """
+        # creates a Box() containing a Button() and Label() with
+        # the specified name and command
         box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
-        # TODO: add image/theme support for buttons instead of empty label
+        # TODO: probably add icons to buttons or image theme support
         button = Gtk.Button("")
         button.connect("clicked", self.on_click, command)
-        label = Gtk.Label(name)
+        label = Gtk.Label()
+        label.set_markup(
+            "<span fgcolor='white' size='large'>{}</span>".format(name)
+            )
 
         box.pack_start(button, False, False, 0)
         box.pack_start(label, False, False, 0)
@@ -78,6 +79,7 @@ class OBquit:
             Gtk.main_quit()
 
     def on_draw(self, widget, cairo_context):
+        # fills the widget with a solid black color and chosen opacity
         cairo_context.set_source_rgba(0, 0, 0, 0.5)
         cairo_context.rectangle(
             0, 0,
