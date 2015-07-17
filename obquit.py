@@ -1,18 +1,28 @@
+#!/usr/bin/env python
+
 from gi.repository import Gtk, Gdk
 import configparser
 import os.path
 import subprocess
+import cairo
 
 class OBquit:
     def __init__(self):
+        # parse config
+        self.parse_config()
+
         # window attributes
         self.window = Gtk.Window()
         self.window.fullscreen()
         self.window.set_decorated(False)
         self.window.connect("delete-event", Gtk.main_quit)
 
-        # parse config
-        self.parse_config()
+        # widget used to stack wifgets on top of each other
+        self.overlay = Gtk.Overlay()
+        self.window.add(self.overlay)
+
+        # widget containing a screengrab of the root window
+        self.background_img = self.get_background()
 
         # widget holding all the buttons
         self.button_line = Gtk.Box(
@@ -21,7 +31,11 @@ class OBquit:
             valign=Gtk.Align.CENTER,
             homogeneous=True
             )
-        self.window.add(self.button_line)
+
+        # stacking the background and buttons to achieve
+        # fake transparency
+        self.overlay.add_overlay(self.background_img)
+        self.overlay.add_overlay(self.button_line)
 
         # adds a button/label Box() for each command
         # TODO: replace class att with instance atts Qbit.buttons
@@ -71,6 +85,20 @@ class OBquit:
 
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
+
+    def get_background(self):
+        root_window = Gdk.get_default_root_window()
+        width = root_window.get_width()
+        height = root_window.get_height()
+
+        # grabs the window (screenshot)
+        pixbuf = Gdk.pixbuf_get_from_window(
+            root_window,
+            0, 0,
+            width, height
+            )
+
+        return Gtk.Image.new_from_pixbuf(pixbuf)
 
 if __name__ == "__main__":
     app = OBquit()
