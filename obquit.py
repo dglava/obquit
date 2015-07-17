@@ -17,12 +17,17 @@ class OBquit:
         self.window.set_decorated(False)
         self.window.connect("delete-event", Gtk.main_quit)
 
+        self.get_resolution()
+
         # widget used to stack wifgets on top of each other
         self.overlay = Gtk.Overlay()
         self.window.add(self.overlay)
 
         # widget containing a screengrab of the root window
         self.background_img = self.get_background()
+
+        self.shade = Gtk.DrawingArea()
+        self.shade.connect("draw", self.on_draw)
 
         # widget holding all the buttons
         self.button_line = Gtk.Box(
@@ -35,6 +40,7 @@ class OBquit:
         # stacking the background and buttons to achieve
         # fake transparency
         self.overlay.add_overlay(self.background_img)
+        self.overlay.add_overlay(self.shade)
         self.overlay.add_overlay(self.button_line)
 
         # adds a button/label Box() for each command
@@ -71,6 +77,14 @@ class OBquit:
         else:
             Gtk.main_quit()
 
+    def on_draw(self, widget, cairo_context):
+        cairo_context.set_source_rgba(0, 0, 0, 0.5)
+        cairo_context.rectangle(
+            0, 0,
+            self.screen_width, self.screen_height
+            )
+        cairo_context.fill()
+
     def parse_config(self):
         # TODO: handle error caused when no user and system wide
         #       config file exists;
@@ -86,16 +100,17 @@ class OBquit:
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
 
-    def get_background(self):
-        root_window = Gdk.get_default_root_window()
-        width = root_window.get_width()
-        height = root_window.get_height()
+    def get_resolution(self):
+        self.root_window = Gdk.get_default_root_window()
+        self.screen_width = self.root_window.get_width()
+        self.screen_height = self.root_window.get_height()
 
+    def get_background(self):
         # grabs the window (screenshot)
         pixbuf = Gdk.pixbuf_get_from_window(
-            root_window,
+            self.root_window,
             0, 0,
-            width, height
+            self.screen_width, self.screen_height
             )
 
         return Gtk.Image.new_from_pixbuf(pixbuf)
