@@ -31,10 +31,54 @@ class OBquit:
         self.window = Gtk.Window()
         self.window.fullscreen()
         self.window.set_decorated(False)
+        self.window_screen = self.window.get_screen()
         self.window.connect("delete-event", Gtk.main_quit)
 
         self.get_resolution()
 
+        # widget holding all the buttons
+        self.button_line = Gtk.Box(
+            spacing=10,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+            homogeneous=True
+            )
+
+        # adds a button/label Box() for each command
+        for name in self.config["Commands"]:
+            self.add_button(
+                self.button_line,
+                name,
+                self.config.get("Commands", name)
+                )
+        # adds a cancel button
+        self.add_button(self.button_line, "cancel")
+
+        # runs the composited version with actual transparency
+        # if a compositor is available;
+        # TODO: maybe add config option to use the fake one even
+        #       with a compositor
+        if self.window_screen.is_composited():
+           self.run_composited()
+        else:
+            self.run_fake_transparency()
+
+    def run_composited(self):
+        self.window.set_app_paintable(True)
+
+        # TODO: will probably cause issues if it returns None
+        visual = self.window_screen.get_rgba_visual()
+        if visual:
+            self.window.set_visual(visual)
+
+        self.window.connect(
+            "draw",
+            self.on_draw_composited,
+            float(self.config.get("Options", "opacity"))
+            )
+        self.window.add(self.button_line)
+
+    def run_fake_transparency(self):
         # widget used to stack wifgets on top of each other
         self.overlay = Gtk.Overlay()
         self.window.add(self.overlay)
@@ -45,17 +89,9 @@ class OBquit:
         self.shade = Gtk.DrawingArea()
         self.shade.connect(
             "draw",
-            self.on_draw,
+            self.on_draw_fake,
             # opacity settings taken from config file
             float(self.config.get("Options", "opacity"))
-            )
-
-        # widget holding all the buttons
-        self.button_line = Gtk.Box(
-            spacing=10,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER,
-            homogeneous=True
             )
 
         # stacking the background and buttons to achieve
@@ -63,17 +99,6 @@ class OBquit:
         self.overlay.add_overlay(self.background_img)
         self.overlay.add_overlay(self.shade)
         self.overlay.add_overlay(self.button_line)
-
-        # adds a button/label Box() for each command
-        # TODO: replace class att with instance atts Qbit.buttons
-        for name in self.config["Commands"]:
-            self.add_button(
-                self.button_line,
-                name,
-                self.config.get("Commands", name)
-                )
-        # adds a cancel button
-        self.add_button(self.button_line, "cancel")
 
     def add_button(self, parent, name, command=None):
         # creates a Box() containing a Button() and Label() with
@@ -95,11 +120,10 @@ class OBquit:
     def on_click(self, widget, command):
         if command:
             subprocess.call(command.split())
-        # the Cancel button has no command
-        else:
-            Gtk.main_quit()
 
-    def on_draw(self, widget, cairo_context, opacity):
+        Gtk.main_quit()
+
+    def on_draw_fake(self, widget, cairo_context, opacity):
         # fills the widget with a solid black color and chosen opacity
         cairo_context.set_source_rgba(0, 0, 0, opacity)
         cairo_context.rectangle(
@@ -107,6 +131,12 @@ class OBquit:
             self.screen_width, self.screen_height
             )
         cairo_context.fill()
+
+    def on_draw_composited(self, widget, cairo_context, opacity):
+        cairo_context.set_source_rgba(0, 0, 0, opacity)
+        # copy/pasted; maybe figure out what it actually does
+        cairo_context.set_operator(cairo.OPERATOR_SOURCE)
+        cairo_context.paint()
 
     def parse_config(self):
         # TODO: handle error caused when no user and system wide
