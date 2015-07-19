@@ -56,13 +56,9 @@ class OBquit:
             )
 
         # adds a button/label Box() for each command
-        for name in self.config["Commands"]:
-            self.add_button(
-                self.button_line,
-                name,
-                self.config.get("Commands", name)
-                )
-        # adds a cancel button
+        for command in self.commands:
+            self.add_button(self.button_line, command[0], command[1])
+        # TODO: maybe remove this and add a cancel button to the config
         self.add_button(self.button_line, "cancel")
 
         # runs the composited version with actual transparency
@@ -73,6 +69,41 @@ class OBquit:
            self.run_composited()
         else:
             self.run_fake_transparency()
+
+    def parse_config(self):
+        user = os.path.expanduser("~/.config/obquit/obquit.conf")
+        system = "/etc/obquit/obquit.conf"
+
+        # a local user config takes precedence
+        if os.path.exists(user):
+            config_file = user
+        elif os.path.exists(system):
+            config_file = system
+        else:
+            # falls back to these defaults
+            config_file = None
+
+            self.commands = [
+                ("shutdown", "systemctl poweroff"),
+                ("suspend", "systemctl suspend"),
+                ("logout", "openbox --exit"),
+                ("hibernate", "systemctl hibernate"),
+                ("reboot", "systemctl reboot")
+                ]
+
+            self.opacity = 0.7
+
+        if config_file:
+            config = configparser.ConfigParser()
+            config.read(config_file)
+
+            # Commands section
+            self.commands = []
+            for name, command in config["Commands"].items():
+                self.commands.append((name, command))
+
+            # Options section
+            self.opacity = config.getfloat("Options", "opacity")
 
     def run_composited(self):
         self.window.set_app_paintable(True)
@@ -85,7 +116,7 @@ class OBquit:
         self.window.connect(
             "draw",
             self.on_draw_composited,
-            float(self.config.get("Options", "opacity"))
+            self.opacity
             )
         self.window.add(self.button_line)
 
@@ -98,12 +129,7 @@ class OBquit:
         self.background_img = self.get_background()
 
         self.shade = Gtk.DrawingArea()
-        self.shade.connect(
-            "draw",
-            self.on_draw_fake,
-            # opacity settings taken from config file
-            float(self.config.get("Options", "opacity"))
-            )
+        self.shade.connect("draw", self.on_draw_fake, self.opacity)
 
         # stacking the background and buttons to achieve
         # fake transparency
@@ -131,7 +157,6 @@ class OBquit:
     def on_click(self, widget, command):
         if command:
             subprocess.call(command.split())
-
         Gtk.main_quit()
 
     def on_draw_fake(self, widget, cairo_context, opacity):
@@ -148,21 +173,6 @@ class OBquit:
         # copy/pasted; maybe figure out what it actually does
         cairo_context.set_operator(cairo.OPERATOR_SOURCE)
         cairo_context.paint()
-
-    def parse_config(self):
-        # TODO: handle error caused when no user and system wide
-        #       config file exists;
-        #       add some kind of defaults;
-        #       maybe add flag for generating a default config
-        user = os.path.expanduser("~/.config/obquit/obquit.conf")
-        system = "/etc/obquit/obquit.conf"
-        if os.path.exists(user):
-            config_file = user
-        else:
-            config_file = system
-
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file)
 
     def get_resolution(self):
         self.root_window = Gdk.get_default_root_window()
