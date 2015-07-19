@@ -16,11 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk, Gdk
 import configparser
 import os.path
 import subprocess
-import cairo
+import sys
+
+try:
+    from gi.repository import Gtk, Gdk
+except ImportError:
+    print("Python-GObject not found. You need to install it.")
+    sys.exit()
+
+try:
+    import cairo
+except ImportError:
+    print("Python-cairo not found. You need to install it.")
+    sys.exit()
 
 class OBquit:
     def __init__(self):
