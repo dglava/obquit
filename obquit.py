@@ -42,10 +42,11 @@ class OBquit:
         self.window = Gtk.Window()
         self.window.fullscreen()
         self.window.set_decorated(False)
-        self.window_screen = self.window.get_screen()
         self.window.connect("delete-event", Gtk.main_quit)
 
-        self.get_resolution()
+        self.window_screen = self.window.get_screen()
+        self.screen_width = self.window_screen.get_width()
+        self.screen_height = self.window_screen.get_height()
 
         # widget holding all the buttons
         self.button_line = Gtk.Box(
@@ -174,15 +175,11 @@ class OBquit:
         cairo_context.set_operator(cairo.OPERATOR_SOURCE)
         cairo_context.paint()
 
-    def get_resolution(self):
-        self.root_window = Gdk.get_default_root_window()
-        self.screen_width = self.root_window.get_width()
-        self.screen_height = self.root_window.get_height()
-
     def get_background(self):
         # grabs the window (screenshot)
+        root_window = Gdk.get_default_root_window()
         pixbuf = Gdk.pixbuf_get_from_window(
-            self.root_window,
+            root_window,
             0, 0,
             self.screen_width, self.screen_height
             )
