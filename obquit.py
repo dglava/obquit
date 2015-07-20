@@ -20,6 +20,7 @@ import configparser
 import os.path
 import subprocess
 import sys
+import atexit
 
 try:
     from gi.repository import Gtk, Gdk
@@ -32,6 +33,9 @@ try:
 except ImportError:
     print("Python-cairo not found. You need to install it.")
     sys.exit()
+
+def execute_command(command):
+    subprocess.call(command.split())
 
 class OBquit:
     def __init__(self):
@@ -156,8 +160,10 @@ class OBquit:
         parent.pack_start(box, False, True, 0)
 
     def on_click(self, widget, command):
+        # registers the command to be run when the GUI's main loop closes
+        # it's probably cleaner this way
         if command:
-            subprocess.call(command.split())
+            atexit.register(execute_command, command)
         Gtk.main_quit()
 
     def on_draw_fake(self, widget, cairo_context, opacity):
