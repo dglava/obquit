@@ -21,6 +21,7 @@ import os.path
 import subprocess
 import sys
 import atexit
+from collections import OrderedDict
 
 try:
     from gi.repository import Gtk, Gdk
@@ -47,6 +48,7 @@ class OBquit:
         self.window.fullscreen()
         self.window.set_decorated(False)
         self.window.connect("delete-event", Gtk.main_quit)
+        self.window.connect("key-press-event", self.on_keypress)
 
         self.window_screen = self.window.get_screen()
         self.screen_width = self.window_screen.get_width()
@@ -61,8 +63,8 @@ class OBquit:
             )
 
         # adds a button/label Box() for each command
-        for command in self.commands:
-            self.add_button(self.button_line, command[0], command[1])
+        for name, command in self.commands.items():
+            self.add_button(self.button_line, name, command)
         # TODO: maybe remove this and add a cancel button to the config
         self.add_button(self.button_line, "cancel")
 
@@ -96,6 +98,14 @@ class OBquit:
                 ("reboot", "systemctl reboot")
                 ]
 
+            self.shortcuts = {
+                "shutdown": "s",
+                "suspend": "u",
+                "logout": "l",
+                "hibernate": "h",
+                "reboot": "r"
+                }
+
             self.opacity = 0.7
 
         if config_file:
@@ -103,9 +113,14 @@ class OBquit:
             config.read(config_file)
 
             # Commands section
-            self.commands = []
+            self.commands = OrderedDict()
             for name, command in config["Commands"].items():
-                self.commands.append((name, command))
+                self.commands[name] = command
+
+            # Shortcuts section
+            self.shortcuts = {}
+            for command, shortcut in config["Shortcuts"].items():
+                self.shortcuts[command] = shortcut
 
             # Options section
             self.opacity = config.getfloat("Options", "opacity")
@@ -115,8 +130,7 @@ class OBquit:
 
         # TODO: will probably cause issues if it returns None
         visual = self.window_screen.get_rgba_visual()
-        if visual:
-            self.window.set_visual(visual)
+        self.window.set_visual(visual)
 
         self.window.connect(
             "draw",
@@ -165,6 +179,18 @@ class OBquit:
         if command:
             atexit.register(execute_command, command)
         Gtk.main_quit()
+
+    def on_keypress(self, widget, event):
+        if Gdk.keyval_name(event.keyval) == "Escape":
+            Gtk.main_quit()
+
+        # gets keypresses and executes a command if it detects
+        # a defined command
+        for command, key in self.shortcuts.items():
+            if Gdk.keyval_name(event.keyval) == key and command in self.commands.keys():
+                command_to_exec = self.commands[command]
+                atexit.register(execute_command, command_to_exec)
+                Gtk.main_quit()
 
     def on_draw_fake(self, widget, cairo_context, opacity):
         # fills the widget with a solid black color and chosen opacity
