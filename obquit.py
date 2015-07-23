@@ -78,6 +78,7 @@ class OBquit:
             self.run_fake_transparency()
 
     def parse_config(self):
+        # TODO: try to make this more elegant
         user = os.path.expanduser("~/.config/obquit/obquit.conf")
         system = "/etc/obquit/obquit.conf"
 
@@ -87,17 +88,28 @@ class OBquit:
         elif os.path.exists(system):
             config_file = system
         else:
-            # falls back to these defaults
             config_file = None
 
-            self.commands = [
-                ("shutdown", "systemctl poweroff"),
+        config = configparser.ConfigParser()
+        if config_file:
+            config.read(config_file)
+
+        # Commands section
+        if not config.has_section("Commands"):
+            self.commands = OrderedDict(
+                (("shutdown", "systemctl poweroff"),
                 ("suspend", "systemctl suspend"),
                 ("logout", "openbox --exit"),
                 ("hibernate", "systemctl hibernate"),
-                ("reboot", "systemctl reboot")
-                ]
+                ("reboot", "systemctl reboot"))
+                )
+        else:
+            self.commands = OrderedDict()
+            for name, command in config["Commands"].items():
+                self.commands[name] = command
 
+        # Shortcuts section
+        if not config.has_section("Shortcuts"):
             self.shortcuts = {
                 "shutdown": "s",
                 "suspend": "u",
@@ -105,25 +117,16 @@ class OBquit:
                 "hibernate": "h",
                 "reboot": "r"
                 }
-
-            self.opacity = 0.7
-
-        if config_file:
-            config = configparser.ConfigParser()
-            config.read(config_file)
-
-            # Commands section
-            self.commands = OrderedDict()
-            for name, command in config["Commands"].items():
-                self.commands[name] = command
-
-            # Shortcuts section
+        else:
             self.shortcuts = {}
             for command, shortcut in config["Shortcuts"].items():
                 self.shortcuts[command] = shortcut
 
-            # Options section
+        # Options section
+        if config.has_option("Options", "opacity"):
             self.opacity = config.getfloat("Options", "opacity")
+        else:
+            self.opacity = 0.7
 
     def run_composited(self):
         self.window.set_app_paintable(True)
