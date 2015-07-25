@@ -47,6 +47,7 @@ class OBquit:
         self.window = Gtk.Window()
         self.window.fullscreen()
         self.window.set_decorated(False)
+        self.window.set_app_paintable(True)
         self.window.connect("delete-event", Gtk.main_quit)
         self.window.connect("key-press-event", self.on_keypress)
 
@@ -54,7 +55,7 @@ class OBquit:
         self.screen_width = self.window_screen.get_width()
         self.screen_height = self.window_screen.get_height()
 
-        # widget holding all the buttons
+        # widget holding all the buttons and their labels
         self.button_line = Gtk.Box(
             spacing=10,
             halign=Gtk.Align.CENTER,
@@ -129,8 +130,6 @@ class OBquit:
             self.opacity = 0.7
 
     def run_composited(self):
-        self.window.set_app_paintable(True)
-
         # TODO: will probably cause issues if it returns None
         visual = self.window_screen.get_rgba_visual()
         self.window.set_visual(visual)
@@ -143,19 +142,19 @@ class OBquit:
         self.window.add(self.button_line)
 
     def run_fake_transparency(self):
-        # widget used to stack wifgets on top of each other
+        self.get_background()
+        self.window.connect("draw", self.on_draw_background)
+
+        # widget used to stack widgets on top of each other
         self.overlay = Gtk.Overlay()
         self.window.add(self.overlay)
 
-        # widget containing a screengrab of the root window
-        self.background_img = self.get_background()
-
+        # empty widget used to darken the background
         self.shade = Gtk.DrawingArea()
-        self.shade.connect("draw", self.on_draw_fake, self.opacity)
+        self.shade.connect("draw", self.on_draw_shade, self.opacity)
 
-        # stacking the background and buttons to achieve
-        # fake transparency
-        self.overlay.add_overlay(self.background_img)
+        # stacking the shade and buttons on top of the window
+        # to achieve a fake transparent look
         self.overlay.add_overlay(self.shade)
         self.overlay.add_overlay(self.button_line)
 
@@ -184,18 +183,30 @@ class OBquit:
         Gtk.main_quit()
 
     def on_keypress(self, widget, event):
+        # gets keypresses and executes a command
         if Gdk.keyval_name(event.keyval) == "Escape":
             Gtk.main_quit()
 
-        # gets keypresses and executes a command if it detects
-        # a defined command
         for command, key in self.shortcuts.items():
-            if Gdk.keyval_name(event.keyval) == key and command in self.commands.keys():
+            # if pressed key was defined in the config and
+            # if its associated command was found in the commands section
+            if (Gdk.keyval_name(event.keyval) == key and
+                    command in self.commands.keys()):
                 command_to_exec = self.commands[command]
                 atexit.register(execute_command, command_to_exec)
                 Gtk.main_quit()
 
-    def on_draw_fake(self, widget, cairo_context, opacity):
+    def on_draw_background(self, widget, cairo_context):
+        # draws a pixbuf as the window's background;
+        # the pixbuf is a screenshot of the desktop
+        Gdk.cairo_set_source_pixbuf(
+            cairo_context,
+            self.background_pixbuf,
+            0, 0
+            )
+        cairo_context.paint()
+
+    def on_draw_shade(self, widget, cairo_context, opacity):
         # fills the widget with a solid black color and chosen opacity
         cairo_context.set_source_rgba(0, 0, 0, opacity)
         cairo_context.rectangle(
@@ -213,13 +224,11 @@ class OBquit:
     def get_background(self):
         # grabs the window (screenshot)
         root_window = Gdk.get_default_root_window()
-        pixbuf = Gdk.pixbuf_get_from_window(
+        self.background_pixbuf = Gdk.pixbuf_get_from_window(
             root_window,
             0, 0,
             self.screen_width, self.screen_height
             )
-
-        return Gtk.Image.new_from_pixbuf(pixbuf)
 
 if __name__ == "__main__":
     app = OBquit()
