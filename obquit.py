@@ -69,11 +69,9 @@ class OBquit:
         # TODO: maybe remove this and add a cancel button to the config
         self.add_button(self.button_line, "cancel")
 
-        # runs the composited version with actual transparency
-        # if a compositor is available;
-        # TODO: maybe add config option to use the fake one even
-        #       with a compositor
-        if self.window_screen.is_composited():
+        # runs the composited version with actual transparency if a
+        # compositor is available and not specified otherwise in the config
+        if self.window_screen.is_composited() and not self.force_fake:
            self.run_composited()
         else:
             self.run_fake_transparency()
@@ -128,6 +126,11 @@ class OBquit:
             self.opacity = config.getfloat("Options", "opacity")
         else:
             self.opacity = 0.7
+
+        if config.has_option("Options", "force fake"):
+            self.force_fake = config.getboolean("Options", "force fake")
+        else:
+            self.force_fake = False
 
     def run_composited(self):
         # TODO: will probably cause issues if it returns None
@@ -222,7 +225,7 @@ class OBquit:
         cairo_context.paint()
 
     def get_background(self):
-        # grabs the window (screenshot)
+        # grabs the root window (screenshot)
         root_window = Gdk.get_default_root_window()
         self.background_pixbuf = Gdk.pixbuf_get_from_window(
             root_window,
