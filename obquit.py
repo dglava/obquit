@@ -146,20 +146,8 @@ class OBquit:
 
     def run_fake_transparency(self):
         self.get_background()
-        self.window.connect("draw", self.on_draw_background)
-
-        # widget used to stack widgets on top of each other
-        self.overlay = Gtk.Overlay()
-        self.window.add(self.overlay)
-
-        # empty widget used to darken the background
-        self.shade = Gtk.DrawingArea()
-        self.shade.connect("draw", self.on_draw_shade, self.opacity)
-
-        # stacking the shade and buttons on top of the window
-        # to achieve a fake transparent look
-        self.overlay.add_overlay(self.shade)
-        self.overlay.add_overlay(self.button_line)
+        self.window.connect("draw", self.on_draw_fake, self.opacity)
+        self.window.add(self.button_line)
 
     def add_button(self, parent, name, command=None):
         # creates a Box() containing a Button() and Label() with
@@ -199,7 +187,7 @@ class OBquit:
                 atexit.register(execute_command, command_to_exec)
                 Gtk.main_quit()
 
-    def on_draw_background(self, widget, cairo_context):
+    def on_draw_fake(self, widget, cairo_context, opacity):
         # draws a pixbuf as the window's background;
         # the pixbuf is a screenshot of the desktop
         Gdk.cairo_set_source_pixbuf(
@@ -209,8 +197,7 @@ class OBquit:
             )
         cairo_context.paint()
 
-    def on_draw_shade(self, widget, cairo_context, opacity):
-        # fills the widget with a solid black color and chosen opacity
+        # overlays a black shade with the chosen opacity
         cairo_context.set_source_rgba(0, 0, 0, opacity)
         cairo_context.rectangle(
             0, 0,
