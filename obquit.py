@@ -36,7 +36,7 @@ except ImportError:
     sys.exit()
 
 def execute_command(command):
-    subprocess.call(command.split())
+    subprocess.Popen(command.split())
 
 class OBquit:
     def __init__(self):
