@@ -7,9 +7,9 @@ setup(
     author_email = "dinomol@mail.com",
     url = "https://github.com/dglava/obquit",
     description = "Openbox logout script",
-    license = "GNU GPLv3"
+    license = "GNU GPLv3",
 
     packages = ["obquit"],
     scripts = ["data/obquit"],
-    data_files = [("/etc/obquit", "data/obquit.conf")]
+    data_files = [("/etc/obquit", ["data/obquit.conf"])]
     )
