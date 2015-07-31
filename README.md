@@ -8,14 +8,16 @@ Utility script for logging out of a session, inspired by Oblogout.
 * gtk3
 
 ##### What works
-- custom command assignment (uses systemd's systemctl by default)
-- supports real (when using a compositor) and fake (doesn't need a compositor) transparency
-- keyboard shortcuts
+- Custom command assignment (uses systemd's systemctl by default)
+- Supports real (when using a compositor) and fake (doesn't need a compositor) transparency
+- Keyboard shortcuts
 
 ##### What needs improvement
-- probably a lot of stuff
+- Pretty much works as intended
 
 ##### How to use
-`python setup.py install`
+- `python setup.py install`
+- Edit the config file in /etc/obquit/obquit.conf
+- Run `obquit` or bind it to a keyboard shortcut
 
 ![](http://s15.postimg.org/ifenvwm4b/image.png)
