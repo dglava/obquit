@@ -16,9 +16,6 @@ Utility script for logging out of a session, inspired by Oblogout.
 - probably a lot of stuff
 
 ##### How to use
-
-Copy the config file to either *~/.config/obquit/* or to */etc/obquit/* for a system wide configuration.
-Start the script manually or bind it to a keyboard shortcut.
-
+`python setup.py install`
 
 ![](http://s15.postimg.org/ifenvwm4b/image.png)
