@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 # Obquit
-# Copyright (C) 2015  dinomol@mail.com
+# Copyright (C) 2015  Dino Duratović <dinomol@mail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -219,8 +217,3 @@ class OBquit:
             0, 0,
             self.screen_width, self.screen_height
             )
-
-if __name__ == "__main__":
-    app = OBquit()
-    app.window.show_all()
-    Gtk.main()
