@@ -13,11 +13,13 @@ Utility script for logging out of a session, inspired by Oblogout.
 - Keyboard shortcuts
 
 ##### What needs improvement
-- Pretty much works as intended
+- Works pretty much as intended
 
 ##### How to use
 - `python setup.py install`
 - Edit the config file in /etc/obquit/obquit.conf
 - Run `obquit` or bind it to a keyboard shortcut
+
+Arch Linux users can install it from the [**AUR**](https://aur4.archlinux.org/packages/obquit-git/)
 
 ![](http://s15.postimg.org/ifenvwm4b/image.png)
