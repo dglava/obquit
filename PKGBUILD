@@ -1,7 +1,7 @@
 # Arch Linux PKGBUILD
 
-pkgname=obquit
-pkgver=r25.dc36e5d
+pkgname=obquit-git
+pkgver=0.1.0
 pkgrel=1
 pkgdesc="Simple logout script for Openbox"
 arch=('any')
@@ -13,11 +13,11 @@ source=('git+https://github.com/dglava/obquit.git')
 md5sums=('SKIP')
 
 pkgver() {
-    cd "$srcdir/$pkgname"
-    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+    cd "$srcdir/${pkgname%-git}"
+    git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 package() {
-    cd "$srcdir/$pkgname"
+    cd "$srcdir/${pkgname%-git}"
     python setup.py install --root="$pkgdir"
 }
