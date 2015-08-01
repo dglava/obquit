@@ -13,11 +13,11 @@ source=('git+https://github.com/dglava/obquit.git')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/$pkgname"
+    cd "$srcdir/$pkgname"
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 package() {
-	cd "$srcdir/$pkgname"
-	python setup.py install --root="$pkgdir"
+    cd "$srcdir/$pkgname"
+    python setup.py install --root="$pkgdir"
 }
