@@ -17,9 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gtk
-from obquit import OBquit
+import obquit
 
 if __name__ == "__main__":
-    run = OBquit()
+    run = obquit.OBquit()
     run.window.show_all()
     Gtk.main()

@@ -10,6 +10,6 @@ setup(
     license = "GNU GPLv3",
 
     packages = ["obquit"],
-    scripts = ["data/obquit"],
+    scripts = ["bin/obquit"],
     data_files = [("/etc/obquit", ["data/obquit.conf"])]
     )
