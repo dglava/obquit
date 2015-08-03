@@ -64,8 +64,6 @@ class OBquit:
         # adds a button/label Box() for each command
         for name, command in self.commands.items():
             self.add_button(self.button_line, name, command)
-        # TODO: maybe remove this and add a cancel button to the config
-        self.add_button(self.button_line, "cancel")
 
         # runs the composited version with actual transparency if a
         # compositor is available and not specified otherwise in the config
@@ -98,7 +96,8 @@ class OBquit:
                 ("suspend", "systemctl suspend"),
                 ("logout", "openbox --exit"),
                 ("hibernate", "systemctl hibernate"),
-                ("reboot", "systemctl reboot"))
+                ("reboot", "systemctl reboot")
+                ("cancel", "None"))
                 )
         else:
             self.commands = OrderedDict()
@@ -166,8 +165,7 @@ class OBquit:
 
     def on_click(self, widget, command):
         # registers the command to be run when the GUI's main loop closes
-        # it's probably cleaner this way
-        if command:
+        if command and command != "None":
             atexit.register(execute_command, command)
         Gtk.main_quit()
 
