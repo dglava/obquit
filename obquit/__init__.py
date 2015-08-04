@@ -96,7 +96,7 @@ class OBquit:
                 ("suspend", "systemctl suspend"),
                 ("logout", "openbox --exit"),
                 ("hibernate", "systemctl hibernate"),
-                ("reboot", "systemctl reboot")
+                ("reboot", "systemctl reboot"),
                 ("cancel", "None"))
                 )
         else:
@@ -111,7 +111,8 @@ class OBquit:
                 "suspend": "u",
                 "logout": "l",
                 "hibernate": "h",
-                "reboot": "r"
+                "reboot": "r",
+                "cancel": "c"
                 }
         else:
             self.shortcuts = {}
