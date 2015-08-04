@@ -34,7 +34,10 @@ except ImportError:
     sys.exit()
 
 def execute_command(command):
-    subprocess.Popen(command.split())
+    try:
+        subprocess.Popen(command.split())
+    except FileNotFoundError:
+        pass
 
 class OBquit:
     def __init__(self):
@@ -166,7 +169,7 @@ class OBquit:
 
     def on_click(self, widget, command):
         # registers the command to be run when the GUI's main loop closes
-        if command and command != "None":
+        if command:
             atexit.register(execute_command, command)
         Gtk.main_quit()
 
