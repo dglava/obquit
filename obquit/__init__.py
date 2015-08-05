@@ -150,7 +150,7 @@ class OBquit:
         self.window.connect("draw", self.on_draw_fake, self.opacity)
         self.window.add(self.button_line)
 
-    def add_button(self, parent, name, command=None):
+    def add_button(self, parent, name, command):
         # creates a Box() containing a Button() and Label() with
         # the specified name and command
         box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
