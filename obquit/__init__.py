@@ -181,7 +181,7 @@ class OBquit:
         for command, key in self.shortcuts.items():
             # if pressed key was defined in the config and
             # if its associated command was found in the commands section
-            if (Gdk.keyval_name(event.keyval) == key and
+            if (Gdk.keyval_name(event.keyval).lower() == key and
                     command in self.commands.keys()):
                 command_to_exec = self.commands[command]
                 atexit.register(execute_command, command_to_exec)
