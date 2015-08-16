@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name = "obquit",
-    version = "0.1.0",
+    version = "0.2.1",
     author = "Dino Duratović",
     author_email = "dinomol@mail.com",
     url = "https://github.com/dglava/obquit",
