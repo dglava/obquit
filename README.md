@@ -16,10 +16,10 @@ Utility script for logging out of a session, inspired by Oblogout.
 - Works pretty much as intended
 
 ##### How to use
-- `python setup.py install`
+- `$ python setup.py install`
 - Edit the config file in /etc/obquit/obquit.conf
-- Run `obquit`
+- Run `$ obquit`
 
-Arch Linux users can install it from the [**AUR**](https://aur4.archlinux.org/packages/obquit-git/)
+Arch Linux users can install it from the [**AUR**](https://aur.archlinux.org/packages/obquit-git/)
 
 ![](http://s15.postimg.org/ifenvwm4b/image.png)
