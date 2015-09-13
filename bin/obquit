@@ -19,7 +19,6 @@
 from gi.repository import Gtk
 import obquit
 
-if __name__ == "__main__":
-    run = obquit.OBquit()
-    run.window.show_all()
-    Gtk.main()
+run = obquit.OBquit()
+run.window.show_all()
+Gtk.main()
