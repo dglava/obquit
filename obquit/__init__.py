@@ -14,24 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import configparser
-import os.path
 import subprocess
 import sys
 import atexit
-from collections import OrderedDict
 
 try:
     from gi.repository import Gtk, Gdk
 except ImportError:
     print("Python-GObject not found. You need to install it.")
-    sys.exit()
+    sys.exit(1)
 
 try:
     import cairo
 except ImportError:
     print("Python-cairo not found. You need to install it.")
-    sys.exit()
+    sys.exit(1)
 
 def execute_command(command):
     try:
@@ -40,9 +37,12 @@ def execute_command(command):
         pass
 
 class OBquit:
-    def __init__(self):
-        # parse config
-        self.parse_config()
+    def __init__(self, commands, shortcuts, opacity, force_fake):
+        # config attributes
+        self.commands = commands
+        self.shortcuts = shortcuts
+        self.opacity = opacity
+        self.force_fake = force_fake
 
         # window attributes
         self.window = Gtk.Window()
@@ -71,69 +71,21 @@ class OBquit:
         # runs the composited version with actual transparency if a
         # compositor is available and not specified otherwise in the config
         if self.window_screen.is_composited() and not self.force_fake:
-           self.run_composited()
+            self.run_composited()
         else:
             self.run_fake_transparency()
 
-    def parse_config(self):
-        # TODO: try to make this more elegant
-        user = os.path.expanduser("~/.config/obquit/obquit.conf")
-        system = "/etc/obquit/obquit.conf"
-
-        # a local user config takes precedence
-        if os.path.exists(user):
-            config_file = user
-        elif os.path.exists(system):
-            config_file = system
-        else:
-            config_file = None
-
-        config = configparser.ConfigParser()
-        if config_file:
-            config.read(config_file)
-
-        # Commands section
-        if not config.has_section("Commands"):
-            self.commands = OrderedDict(
-                (("shutdown", "systemctl poweroff"),
-                ("suspend", "systemctl suspend"),
-                ("logout", "openbox --exit"),
-                ("hibernate", "systemctl hibernate"),
-                ("reboot", "systemctl reboot"),
-                ("cancel", "None"))
-                )
-        else:
-            self.commands = OrderedDict()
-            for name, command in config["Commands"].items():
-                self.commands[name] = command
-
-        # Shortcuts section
-        if not config.has_section("Shortcuts"):
-            self.shortcuts = {
-                "shutdown": "s",
-                "suspend": "u",
-                "logout": "l",
-                "hibernate": "h",
-                "reboot": "r",
-                "cancel": "c"
-                }
-        else:
-            self.shortcuts = {}
-            for command, shortcut in config["Shortcuts"].items():
-                self.shortcuts[command] = shortcut
-
-        # Options section
-        if config.has_option("Options", "opacity"):
-            self.opacity = config.getfloat("Options", "opacity")
-        else:
-            self.opacity = 0.7
-
-        if config.has_option("Options", "force fake"):
-            self.force_fake = config.getboolean("Options", "force fake")
-        else:
-            self.force_fake = False
+        # adds the box holding the buttons to the window
+        self.window.add(self.button_line)
+        # displays everything
+        self.window.show_all()
 
     def run_composited(self):
+        """Runs the composited version with real transparency
+
+        Requires a compositor. If this is run on a non-composited
+        desktop, the background will just be black.
+        """
         # TODO: will probably cause issues if it returns None
         visual = self.window_screen.get_rgba_visual()
         self.window.set_visual(visual)
@@ -143,19 +95,21 @@ class OBquit:
             self.on_draw_composited,
             self.opacity
             )
-        self.window.add(self.button_line)
 
     def run_fake_transparency(self):
+        """Runs the fake-transparency version
+
+        Doesn't require a compositor. It achieves a transparent look by
+        taking a screenshot of the desktop and using it as the window's
+        background. The buttons get displayed on top of that.
+        """
         self.get_background()
         self.window.connect("draw", self.on_draw_fake, self.opacity)
-        self.window.add(self.button_line)
 
     def add_button(self, parent, name, command):
-        # creates a Box() containing a Button() and Label() with
-        # the specified name and command
+        """Adds a Box() with a Button() and Label()"""
         box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
-        # TODO: probably add icons to buttons or image theme support
         button = Gtk.Button("")
         button.connect("clicked", self.on_click, command)
         label = Gtk.Label()
@@ -168,13 +122,13 @@ class OBquit:
         parent.pack_start(box, False, True, 0)
 
     def on_click(self, widget, command):
-        # registers the command to be run when the GUI's main loop closes
+        """For mouse clicks: runs the command when the GUI exits"""
         if command:
             atexit.register(execute_command, command)
         Gtk.main_quit()
 
     def on_keypress(self, widget, event):
-        # gets keypresses and executes a command
+        """For keypresses: runs the command when the GUI exits"""
         if Gdk.keyval_name(event.keyval) == "Escape":
             Gtk.main_quit()
 
@@ -212,7 +166,7 @@ class OBquit:
         cairo_context.paint()
 
     def get_background(self):
-        # grabs the root window (screenshot)
+        """Grabs the root window (screenshot)"""
         root_window = Gdk.get_default_root_window()
         self.background_pixbuf = Gdk.pixbuf_get_from_window(
             root_window,

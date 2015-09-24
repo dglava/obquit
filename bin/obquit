@@ -17,8 +17,75 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gtk
+from collections import OrderedDict
+import os.path
+import configparser
+
 import obquit
 
-run = obquit.OBquit()
-run.window.show_all()
+DEFAULT_COMMANDS = (
+    ("shutdown", "systemctl poweroff"),
+    ("suspend", "systemctl suspend"),
+    ("logout", "openbox --exit"),
+    ("hibernate", "systemctl hibernate"),
+    ("reboot", "systemctl reboot"),
+    ("cancel", "None"))
+
+DEFAULT_SHORTCUTS = {
+    "shutdown": "s",
+    "suspend": "u",
+    "logout": "l",
+    "hibernate": "h",
+    "reboot": "r",
+    "cancel": "c"}
+
+DEFAULT_OPACITY = 0.7
+DEFAULT_FORCE_FAKE = False
+
+def parse_config():
+    """Parses config file, returns settings"""
+    user = os.path.expanduser("~/.config/obquit/obquit.conf")
+    system = "/etc/obquit/obquit.conf"
+
+    # a local user config takes precedence
+    if os.path.exists(user):
+        config_file = user
+    elif os.path.exists(system):
+        config_file = system
+    else:
+        config_file = None
+
+    config = configparser.ConfigParser()
+    if config_file:
+        config.read(config_file)
+
+    # checks if the config has the proper section first
+    # if it doesn't, uses the built-in defaults
+    if not config.has_section("Commands"):
+        commands = OrderedDict(DEFAULT_COMMANDS)
+    else:
+        commands = OrderedDict(config["Commands"])
+
+    if not config.has_section("Shortcuts"):
+        shortcuts = OrderedDict(DEFAULT_SHORTCUTS)
+    else:
+        shortcuts = OrderedDict(config["Shortcuts"])
+
+    if config.has_option("Options", "opacity"):
+        opacity = config.getfloat("Options", "opacity")
+    else:
+        opacity = DEFAULT_OPACITY
+
+    if config.has_option("Options", "force fake"):
+        force_fake = config.getboolean("Options", "force fake")
+    else:
+        force_fake = DEFAULT_FORCE_FAKE
+
+    return commands, shortcuts, opacity, force_fake
+
+# unpacks the config options
+commands, shortcuts, opacity, force_fake = parse_config()
+
+# runs the application
+obquit.OBquit(commands, shortcuts, opacity, force_fake)
 Gtk.main()
