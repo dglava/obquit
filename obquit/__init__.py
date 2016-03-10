@@ -80,6 +80,9 @@ class OBquit:
         # displays everything
         self.window.show_all()
 
+        # main loop
+        Gtk.main()
+
     def run_composited(self):
         """Runs the composited version with real transparency
 

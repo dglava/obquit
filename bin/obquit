@@ -93,4 +93,3 @@ commands, shortcuts, opacity, force_fake = parse_config()
 
 # runs the application
 obquit.OBquit(commands, shortcuts, opacity, force_fake)
-Gtk.main()
