@@ -1,5 +1,5 @@
 # Obquit
-# Copyright (C) 2015  Dino Duratović <dinomol@mail.com>
+# Copyright (C) 2015  Dino Duratović <dinomol at mail dot com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
