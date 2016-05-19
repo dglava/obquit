@@ -21,6 +21,6 @@ Utility script for logging out of a session, inspired by Oblogout.
 - Edit the config file in /etc/obquit/obquit.conf
 - Run `$ obquit`
 
-Arch Linux users can install it from the [**AUR**](https://aur.archlinux.org/packages/obquit-git/)
+Arch Linux users can use the provided PKGBUILD.
 
 ![](http://s15.postimg.org/ifenvwm4b/image.png)
