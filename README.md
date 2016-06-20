@@ -1,6 +1,8 @@
 # obquit
 Utility script for logging out of a session, inspired by Oblogout.
 
+![](https://s31.postimg.org/mzvm9q3vv/2016_06_20_20_48_49.png)
+
 ##### Dependencies (Arch package names)
 * python (Python 3)
 * python-gobject
@@ -22,5 +24,3 @@ Utility script for logging out of a session, inspired by Oblogout.
 - Run `$ obquit`
 
 Arch Linux users can use the provided PKGBUILD.
-
-![](http://s15.postimg.org/ifenvwm4b/image.png)
