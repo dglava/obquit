@@ -18,17 +18,7 @@ import subprocess
 import sys
 import atexit
 
-try:
-    from gi.repository import Gtk, Gdk
-except ImportError:
-    print("Python-GObject not found. You need to install it.")
-    sys.exit(1)
-
-try:
-    import cairo
-except ImportError:
-    print("Python-cairo not found. You need to install it.")
-    sys.exit(1)
+from gi.repository import Gtk, Gdk
 
 def execute_command(command):
     try:

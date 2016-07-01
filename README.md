@@ -8,7 +8,6 @@ Utility script for logging out of a session, inspired by Oblogout.
 * python-gobject
 * python-cairo
 * gtk3
-* python-xdg
 
 ##### What works
 - Custom command assignment (uses systemd's systemctl by default)
