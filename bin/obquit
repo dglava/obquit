@@ -107,5 +107,10 @@ def parse_config():
 # unpacks the config options
 commands, shortcuts, opacity, force_fake = parse_config()
 
-# runs the application
-obquit.OBquit(commands, shortcuts, opacity, force_fake)
+# run obquit if it's not already running
+if not os.path.exists("/tmp/obquit.lock"):
+    open("/tmp/obquit.lock", "w")
+    obquit.OBquit(commands, shortcuts, opacity, force_fake)
+    os.remove("/tmp/obquit.lock")
+else:
+    print("obquit is already running, exiting")
