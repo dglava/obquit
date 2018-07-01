@@ -61,12 +61,12 @@ def get_user_config_location():
     try:
         return os.environ["XDG_CONFIG_HOME"]
     except KeyError:
-        return os.path.expanduser("~/.config/obquit/obquit.conf")
+        return os.path.expanduser("~/.config/obquit.conf")
 
 def parse_config():
     """Parses config file, returns settings"""
     user = get_user_config_location()
-    system = "/etc/obquit/obquit.conf"
+    system = "/etc/obquit.conf"
 
     # a local user config takes precedence
     if os.path.exists(user):
@@ -113,4 +113,4 @@ if not os.path.exists("/tmp/obquit.lock"):
     obquit.OBquit(commands, shortcuts, opacity, force_fake)
     os.remove("/tmp/obquit.lock")
 else:
-    print("obquit is already running, exiting")
+    print("Obquit is already running, exiting")
