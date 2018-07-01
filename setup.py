@@ -11,5 +11,5 @@ setup(
 
     packages = ["obquit"],
     scripts = ["bin/obquit"],
-    data_files = [("/etc/obquit", ["data/obquit.conf"])]
+    data_files = [("/etc", ["data/obquit.conf"])]
     )
