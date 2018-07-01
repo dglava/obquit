@@ -19,7 +19,7 @@ Utility script for logging out of a session, inspired by Oblogout.
 
 ##### How to use
 - `$ python setup.py install`
-- Edit the config file in /etc/obquit/obquit.conf
+- Edit the config file in /etc/obquit.conf
 - Run `$ obquit`
 
 Arch Linux users can install it from the [AUR](https://aur.archlinux.org/packages/obquit-git/).
