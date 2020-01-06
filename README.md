@@ -1,7 +1,7 @@
 # obquit
 Utility script for logging out of a session, inspired by Oblogout.
 
-![](https://s31.postimg.org/mzvm9q3vv/2016_06_20_20_48_49.png)
+![](https://raw.githubusercontent.com/dglava/obquit/master/screen.png)
 
 ##### Dependencies (Arch package names)
 * python (Python 3)
