@@ -156,8 +156,10 @@ class OBquit:
 
     def on_draw_composited(self, widget, cairo_context, opacity):
         cairo_context.set_source_rgba(0, 0, 0, opacity)
-        # copy/pasted; maybe figure out what it actually does
-        cairo_context.set_operator(cairo.OPERATOR_SOURCE)
+        # copy/pasted; maybe figure out what it actually does;
+        # for now disabled because it spits out errors and it works
+        # without it
+        # cairo_context.set_operator(cairo.OPERATOR_SOURCE)
         cairo_context.paint()
 
     def get_background(self):
