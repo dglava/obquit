@@ -38,6 +38,8 @@ class OBquit:
         self.window = Gtk.Window()
         self.window.fullscreen()
         self.window.set_decorated(False)
+        self.window.set_skip_taskbar_hint(True)
+        self.window.set_skip_pager_hint(True)
         self.window.set_app_paintable(True)
         self.window.connect("delete-event", Gtk.main_quit)
         self.window.connect("key-press-event", self.on_keypress)
