@@ -1,5 +1,5 @@
 # Obquit
-# Copyright (C) 2015  Dino Duratović <dinomol at mail dot com>
+# Copyright (C) 2015-2024  Dino Duratović <dinomol at mail dot com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,17 +14,100 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import os.path
+import sys
+import configparser
+from collections import OrderedDict
 import subprocess
 import sys
 import atexit
 
-from gi.repository import Gtk, Gdk
+try:
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk
+except ImportError:
+    print("Python-GObject not found. You need to install it.")
+    sys.exit(1)
+
+try:
+    import cairo
+except ImportError:
+    print("Python-cairo not found. You need to install it.")
+    sys.exit(1)
+
+DEFAULT_COMMANDS = OrderedDict((
+    ("shutdown", "systemctl poweroff"),
+    ("suspend", "systemctl suspend"),
+    ("logout", "openbox --exit"),
+    ("hibernate", "systemctl hibernate"),
+    ("reboot", "systemctl reboot"),
+    ("cancel", "None")
+    ))
+DEFAULT_SHORTCUTS = OrderedDict((
+    ("shutdown", "s"),
+    ("suspend", "u"),
+    ("logout", "l"),
+    ("hibernate", "h"),
+    ("reboot", "r"),
+    ("cancel", "c")
+    ))
+DEFAULT_OPACITY = 0.7
+DEFAULT_FORCE_FAKE = False
 
 def execute_command(command):
     try:
         subprocess.Popen(command.split())
     except FileNotFoundError:
         pass
+
+def get_user_config_location():
+    try:
+        return os.environ["XDG_CONFIG_HOME"]
+    except KeyError:
+        return os.path.expanduser("~/.config/obquit.conf")
+
+def parse_config():
+    """Parses config file, returns settings"""
+    user = get_user_config_location()
+    system = "/etc/obquit.conf"
+
+    # a local user config takes precedence
+    if os.path.exists(user):
+        config_file = user
+    elif os.path.exists(system):
+        config_file = system
+    else:
+        config_file = None
+
+    config = configparser.ConfigParser()
+    if config_file:
+        config.read(config_file)
+
+    # checks if the config has the proper section first
+    # if it doesn't, uses the built-in defaults
+    if not config.has_section("Commands"):
+        commands = DEFAULT_COMMANDS
+    else:
+        commands = config["Commands"]
+
+    if not config.has_section("Shortcuts"):
+        shortcuts = DEFAULT_SHORTCUTS
+    else:
+        shortcuts = config["Shortcuts"]
+
+    if config.has_option("Options", "opacity"):
+        opacity = config.getfloat("Options", "opacity")
+    else:
+        opacity = DEFAULT_OPACITY
+
+    if config.has_option("Options", "force fake"):
+        force_fake = config.getboolean("Options", "force fake")
+    else:
+        force_fake = DEFAULT_FORCE_FAKE
+
+    return commands, shortcuts, opacity, force_fake
 
 class OBquit:
     def __init__(self, commands, shortcuts, opacity, force_fake):
@@ -170,3 +253,15 @@ class OBquit:
             0, 0,
             self.screen_width, self.screen_height
             )
+
+def run():
+    commands, shortcuts, opacity, force_fake = parse_config()
+    if not os.path.exists("/tmp/obquit.lock"):
+        open("/tmp/obquit.lock", "w")
+        OBquit(commands, shortcuts, opacity, force_fake)
+        os.remove("/tmp/obquit.lock")
+    else:
+        print("Obquit is already running, exiting")
+
+if __name__ == "__main__":
+    run()
