@@ -1,3 +1,20 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "obquit"
+version = "0.1"
+description = "Shutdown/reboot/logout utility script"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Dino Duratović", email = "dinomol@mail.com" }]
+dependencies = ["PyGObject", "pycairo"]
+
+[tool.setuptools]
+py-modules = ["obquit"]
+package-dir = {"" = "src"}
+
+[project.scripts]
+obquit = "obquit:run"

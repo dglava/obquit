@@ -4,7 +4,7 @@ Utility script for logging out of a session, inspired by Oblogout.
 ![](https://raw.githubusercontent.com/dglava/obquit/master/screen.png)
 
 ##### Dependencies (Arch package names)
-* python (Python 3)
+* python
 * python-gobject
 * python-cairo
 * gtk3
@@ -20,6 +20,6 @@ Utility script for logging out of a session, inspired by Oblogout.
 ##### How to use
 - Build and install the package
 - Edit the config file in /etc/obquit.conf
-- Run `$ obquit`
+- Run `obquit`
 
 Arch Linux users can install it from the [AUR](https://aur.archlinux.org/packages/obquit-git/).
