@@ -1,4 +1,8 @@
 # obquit
+
+### This is deprecated in favour of [Wayquit](https://github.com/dglava/wayquit).
+
+---
 Utility script for logging out of a session, inspired by Oblogout.
 
 ![](https://raw.githubusercontent.com/dglava/obquit/master/screen.png)
